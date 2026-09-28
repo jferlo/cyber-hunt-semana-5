@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyber Hunt – Semana 5</title>
+<style>
+:root{
+  --bg:#050b14; --panel:#0b1725; --panel2:#102238; --line:#23415c;
+  --text:#eef7ff; --muted:#9bb2c5; --cyan:#39d9ff; --pink:#ff4fa3;
+  --green:#5ce3a4; --yellow:#ffd166; --red:#ff6b7a; --ink:#031018;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 15% 0%,rgba(57,217,255,.12),transparent 27rem),
+    radial-gradient(circle at 90% 20%,rgba(255,79,163,.09),transparent 24rem),
+    var(--bg);
+}
+button,input{font:inherit}
+button{min-height:46px}
+.wrap{max-width:980px;margin:auto;padding:16px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  padding:7px 0 15px
+}
+.brand{font-weight:900;letter-spacing:.1em}.brand span{color:var(--cyan)}
+.status{
+  color:var(--muted);border:1px solid var(--line);background:#07111c;
+  border-radius:999px;padding:7px 11px;font-size:.88rem
+}
+.panel{
+  background:linear-gradient(180deg,rgba(16,34,56,.97),rgba(7,17,28,.98));
+  border:1px solid var(--line);border-radius:20px;padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.28)
+}
+.hero{text-align:center;padding:38px 24px}
+.kicker{
+  color:var(--pink);font-size:.78rem;font-weight:900;letter-spacing:.14em;
+  text-transform:uppercase
+}
+h1{font-size:clamp(2.2rem,8vw,4.7rem);letter-spacing:.05em;margin:.25rem 0 .5rem}
+h2{font-size:clamp(1.45rem,4vw,2.15rem);margin:.25rem 0 1rem}
+h3{margin:.15rem 0 .6rem;font-size:1.06rem}
+p{line-height:1.55}
+.lead{max-width:720px;margin:0 auto 22px;color:var(--muted);font-size:1.04rem}
+.small{color:var(--muted);font-size:.9rem;line-height:1.45}
+.rule{
+  border-left:4px solid var(--cyan);background:#071522;border-radius:10px;
+  padding:14px 15px;margin:16px 0;line-height:1.55
+}
+.warning{border-left-color:var(--yellow)}
+.lockbox{border:1px dashed var(--pink);background:#190f1c;border-radius:15px;padding:18px;margin-top:20px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+label{display:block;font-weight:800;margin:10px 0 6px}
+input[type=text]{
+  width:100%;min-height:46px;border:1px solid #31536d;border-radius:11px;
+  padding:11px 12px;background:#06131f;color:var(--text);font-size:16px
+}
+input:focus,button:focus{outline:3px solid rgba(57,217,255,.24);outline-offset:2px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.actions.center{justify-content:center}
+.btn{
+  border:0;border-radius:12px;padding:11px 16px;font-weight:900;cursor:pointer;
+  background:var(--cyan);color:var(--ink)
+}
+.btn.secondary{background:#183149;color:var(--text);border:1px solid #31536d}
+.btn.pink{background:var(--pink);color:white}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.progress{
+  height:9px;border:1px solid var(--line);background:#06121e;border-radius:999px;
+  overflow:hidden;margin:9px 0 18px
+}
+.progress>div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--pink));transition:width .25s}
+.meta{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 13px}
+.pill{border:1px solid var(--line);background:#07131f;border-radius:999px;padding:6px 9px;color:var(--muted);font-size:.84rem}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.evidence{
+  min-width:0;border:1px solid #2b4b64;background:#081725;border-radius:14px;
+  padding:15px;text-align:left;color:var(--text);cursor:pointer;position:relative
+}
+.evidence:hover{border-color:var(--cyan)}
+.evidence.opened{border-color:var(--green);background:#0b211d}
+.evidence .tag{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);font-weight:900}
+.evidence.opened .tag{color:var(--green)}
+.evidence .mark{position:absolute;right:12px;top:10px;color:var(--green);font-weight:900}
+.detail{
+  margin-top:15px;border:1px solid #2a4a62;background:#06131f;border-radius:14px;
+  padding:17px;animation:appear .18s ease
+}
+@keyframes appear{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}
+.log{
+  font-family:Consolas,"Courier New",monospace;white-space:pre-wrap;overflow-wrap:anywhere;
+  background:#030910;border:1px solid #24445c;border-radius:10px;padding:13px;
+  color:#cdeeff;line-height:1.65;margin:10px 0
+}
+.analysis{
+  border:1px solid #2a4a62;background:#081725;border-radius:14px;padding:15px;
+  cursor:pointer;text-align:left;color:var(--text)
+}
+.analysis.opened{border-color:var(--cyan);background:#0a1d2d}
+.analysis .num{color:var(--pink);font-weight:900;font-size:.78rem;letter-spacing:.12em}
+.checklist{display:grid;gap:9px;margin-top:12px}
+.check{
+  display:flex;gap:10px;align-items:flex-start;background:#071522;border:1px solid #28465e;
+  border-radius:11px;padding:11px
+}
+.check input{margin-top:3px;transform:scale(1.15)}
+.codeRow{display:flex;gap:9px;align-items:stretch;margin-top:12px}
+.codeRow input{flex:1;text-transform:uppercase;letter-spacing:.08em;font-weight:900}
+.feedback{min-height:26px;margin-top:10px;font-weight:900}
+.ok{color:var(--green)}.bad{color:var(--red)}.note{color:var(--yellow)}
+.role{
+  border:1px solid #2a4a62;background:#071522;border-radius:12px;padding:13px;line-height:1.5
+}
+.role b{color:var(--cyan)}
+.nist{
+  border:1px solid #2a4a62;background:#081725;border-radius:14px;padding:15px;
+  cursor:pointer;text-align:left;color:var(--text)
+}
+.nist.opened{border-color:var(--green);background:#0b211d}
+.nist strong{display:block;color:var(--cyan);letter-spacing:.06em;margin-bottom:6px}
+.finalChecks{display:grid;gap:10px;margin:17px 0}
+.finalChecks label{display:flex;gap:10px;align-items:flex-start;margin:0;background:#071522;border:1px solid #28465e;border-radius:11px;padding:12px}
+.finalChecks input{margin-top:3px;transform:scale(1.15)}
+.done{color:var(--green);font-weight:900}
+.phaseLine{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0 18px}
+.phaseDot{width:10px;height:10px;border-radius:50%;background:#29455b}
+.phaseDot.on{background:var(--cyan)}.phaseDot.doneDot{background:var(--green)}
+.sep{color:#426078}
+@media(max-width:680px){
+  .wrap{padding:10px}.panel{padding:17px}.hero{padding:27px 17px}
+  .grid,.grid3,.cards{grid-template-columns:1fr}.codeRow{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><span>CYBER</span> HUNT · SEMANA 5</div>
+    <div id="status" class="status">Operación no iniciada</div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* =========================================================
+   CÓDIGOS DE CANVAS
+   Son iguales para todos los equipos.
+   Si deseas cambiarlos, modifica únicamente estas dos líneas.
+   ========================================================= */
+const CODE_PHASE_2 = "NEXUS-3147";
+const CODE_PHASE_3 = "SENTINEL-6821";
+
+const STORAGE_KEY = "cyber_hunt_semana5_v3";
+
+const steps = [
+  "start",
+  "m1",
+  "m2",
+  "cp1",
+  "m3",
+  "m4",
+  "cp2",
+  "m5",
+  "m6",
+  "cp3",
+  "final"
+];
+
+const initialState = () => ({
+  step:"start",
+  team:"",
+  members:[],
+  opened:{m1:[],m2:[],m3:[],m4:[],m5:[],m6:[]},
+  phase2:false,
+  phase3:false,
+  completed:false
+});
+
+let state = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return initialState();
+    const parsed = JSON.parse(raw);
+    return {...initialState(), ...parsed, opened:{...initialState().opened, ...(parsed.opened||{})}};
+  }catch(e){ return initialState(); }
+}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  }[m]));
+}
+function currentIndex(){ return Math.max(0, steps.indexOf(state.step)); }
+function progressPct(){ return Math.round((currentIndex()/(steps.length-1))*100); }
+function setStep(step){ state.step=step; save(); render(); window.scrollTo({top:0,behavior:"smooth"}); }
+function status(){
+  const el=document.getElementById("status");
+  if(state.step==="start") el.textContent="Operación no iniciada";
+  else if(state.completed) el.textContent="Operación completada";
+  else if(["m1","m2","cp1"].includes(state.step)) el.textContent="Fase 1 · Investigación inicial";
+  else if(["m3","m4","cp2"].includes(state.step)) el.textContent="Fase 2 · Acceso comprometido";
+  else el.textContent="Fase 3 · Respuesta al incidente";
+}
+function header(kicker,title,subtitle=""){
+  return `
+    <section class="panel">
+      <div class="kicker">${esc(kicker)}</div>
+      <h2>${esc(title)}</h2>
+      <div class="meta">
+        <span class="pill">Equipo: ${esc(state.team)}</span>
+        <span class="pill">${state.members.length} integrante${state.members.length===1?"":"s"}</span>
+      </div>
+      <div class="progress"><div style="width:${progressPct()}%"></div></div>
+      ${subtitle?`<p class="small">${esc(subtitle)}</p>`:""}
+  `;
+}
+function phaseLine(active){
+  return `<div class="phaseLine">
+    <span class="phaseDot ${active>1?"doneDot":active===1?"on":""}"></span><span>Investigación</span>
+    <span class="sep">›</span>
+    <span class="phaseDot ${active>2?"doneDot":active===2?"on":""}"></span><span>Acceso</span>
+    <span class="sep">›</span>
+    <span class="phaseDot ${active>3?"doneDot":active===3?"on":""}"></span><span>Respuesta</span>
+  </div>`;
+}
+function markOpened(mission,id){
+  const arr=state.opened[mission]||[];
+  if(!arr.includes(id)) arr.push(id);
+  state.opened[mission]=arr; save();
+}
+function allOpened(mission,total){ return (state.opened[mission]||[]).length>=total; }
+function evidenceCards(mission,items){
+  const opened=state.opened[mission]||[];
+  return `<div class="cards">${items.map((it,i)=>`
+    <button class="evidence ${opened.includes(i)?"opened":""}" data-ev="${i}">
+      <span class="tag">${opened.includes(i)?"Investigada":"Evidencia"} · ${String.fromCharCode(65+i)}</span>
+      ${opened.includes(i)?'<span class="mark">✓</span>':""}
+      <h3>${esc(it.title)}</h3>
+      <span class="small">${esc(it.short)}</span>
+    </button>`).join("")}</div>
+    <div id="detail"></div>`;
+}
+function wireEvidence(mission,items,nextLabel,nextStep){
+  document.querySelectorAll("[data-ev]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const i=Number(btn.dataset.ev); markOpened(mission,i);
+      const d=document.getElementById("detail");
+      d.innerHTML=`<div class="detail"><div class="kicker">${esc(items[i].title)}</div>${items[i].body}</div>`;
+      btn.classList.add("opened");
+      btn.querySelector(".tag").textContent=`Investigada · ${String.fromCharCode(65+i)}`;
+      if(!btn.querySelector(".mark")) btn.insertAdjacentHTML("beforeend",'<span class="mark">✓</span>');
+      const go=document.getElementById("nextBtn");
+      if(go && allOpened(mission,items.length)) go.disabled=false;
+    });
+  });
+  document.getElementById("nextBtn").addEventListener("click",()=>setStep(nextStep));
+}
+
+function renderStart(){
+  document.getElementById("app").innerHTML=`
+  <section class="panel hero">
+    <div class="kicker">Fundamentos de Seguridad de la Información</div>
+    <h1>CYBER HUNT</h1>
+    <p class="lead">Analiza. Investiga. Decide. Protege.<br>
+    Su equipo investigará un incidente de seguridad en tres fases. El juego les proporcionará evidencias y pautas de análisis; las evidencias académicas serán tres videos entregados en Canvas.</p>
+    ${phaseLine(1)}
+    <div class="rule">
+      <b>Reglas de operación</b><br>
+      • Máximo 3 integrantes por equipo.<br>
+      • Todos deben aparecer y participar verbalmente en los tres checkpoints.<br>
+      • No fotografíen ni graben contraseñas, credenciales, datos personales o información sensible.<br>
+      • Después de los checkpoints 1 y 2, Canvas les entregará el código para desbloquear la siguiente fase.
+    </div>
+    <div class="grid">
+      <div><label for="team">Nombre del equipo</label><input id="team" type="text" maxlength="45" placeholder="Ej. Byte Defenders"></div>
+      <div><label for="m1">Integrante 1</label><input id="m1" type="text" maxlength="70" placeholder="Nombre y apellido"></div>
+      <div><label for="m2">Integrante 2</label><input id="m2" type="text" maxlength="70" placeholder="Nombre y apellido"></div>
+      <div><label for="m3">Integrante 3 (opcional)</label><input id="m3" type="text" maxlength="70" placeholder="Nombre y apellido"></div>
+    </div>
+    <div class="finalChecks">
+      <label><input id="accept" type="checkbox"> <span>Hemos leído y comprendido las instrucciones y sabemos que todos los integrantes deben participar en las evidencias de Canvas.</span></label>
+    </div>
+    <div id="msg" class="feedback"></div>
+    <div class="actions center"><button id="startBtn" class="btn" disabled>INICIAR INVESTIGACIÓN</button></div>
+  </section>`;
+  const accept=document.getElementById("accept"),start=document.getElementById("startBtn");
+  accept.addEventListener("change",()=>start.disabled=!accept.checked);
+  start.addEventListener("click",()=>{
+    const team=document.getElementById("team").value.trim();
+    const members=[document.getElementById("m1").value.trim(),document.getElementById("m2").value.trim(),document.getElementById("m3").value.trim()].filter(Boolean);
+    if(!team || members.length<2){
+      document.getElementById("msg").innerHTML='<span class="bad">Ingresen el nombre del equipo y al menos dos integrantes.</span>'; return;
+    }
+    state.team=team; state.members=members; state.step="m1"; save(); render(); window.scrollTo(0,0);
+  });
+}
+
+function renderM1(){
+  const items=[
+    {
+      title:"Reporte de usuario",
+      short:"Un usuario describe lo ocurrido antes de detectar problemas con su cuenta.",
+      body:`<p>“Esta mañana recibí un correo indicando que debía verificar mi cuenta. Ingresé con mi usuario y contraseña porque el mensaje decía que mi acceso sería suspendido.”</p>
+      <p class="small">Analicen qué información de este testimonio puede ser relevante para reconstruir el incidente.</p>`
+    },
+    {
+      title:"Registro de acceso",
+      short:"Actividad registrada después del inicio de sesión.",
+      body:`<div class="log">08:12  Inicio de sesión exitoso
+08:14  Consulta de perfil
+08:17  Acceso a información académica
+08:21  Modificación de información
+08:26  Nueva sesión desde otro dispositivo</div>
+      <p class="small">No asuman todavía quién realizó cada acción. Registren mentalmente qué eventos requieren investigación.</p>`
+    },
+    {
+      title:"Mesa de ayuda",
+      short:"Se reciben reportes adicionales sobre el servicio académico.",
+      body:`<p>Varios usuarios informan que durante algunos minutos no pudieron acceder normalmente al servicio académico.</p>
+      <p class="small">Consideren qué podría significar esto para la operación de la organización.</p>`
+    },
+    {
+      title:"Administrador del sistema",
+      short:"Se detectan cambios que los usuarios no reconocen.",
+      body:`<p>Se identificaron cambios en información que los usuarios afectados aseguran no haber realizado.</p>
+      <p class="small">Piensen qué propiedad de la información podría estar comprometida.</p>`
+    }
+  ];
+  document.getElementById("app").innerHTML=header("Fase 1 · Misión 1","Alerta en el sistema")+
+  phaseLine(1)+`
+  <div class="rule"><b>ALERTA DE SEGURIDAD</b><br>
+  Durante las últimas horas se han reportado comportamientos inusuales relacionados con varios servicios tecnológicos de la universidad.
+  Su equipo ha sido convocado para realizar una investigación inicial. <b>No existe todavía un diagnóstico.</b></div>
+  <p>Revisen todas las evidencias antes de sacar conclusiones.</p>
+  ${evidenceCards("m1",items)}
+  <div class="actions"><button id="nextBtn" class="btn" ${allOpened("m1",items.length)?"":"disabled"}>CONTINUAR CON LA INVESTIGACIÓN</button></div>
+  </section>`;
+  wireEvidence("m1",items,"Continuar","m2");
+}
+
+function renderM2(){
+  const prompts=[
+    {title:"¿Qué estamos protegiendo?",body:"A partir de las evidencias encontradas, identifiquen qué elementos tienen valor para la organización. No piensen únicamente en dispositivos físicos: la información, las cuentas y los servicios también pueden ser activos."},
+    {title:"¿Qué podría facilitar el incidente?",body:"Diferencien entre aquello que puede causar daño y una condición que podría facilitar que ese daño ocurra. Amenaza y vulnerabilidad no significan lo mismo."},
+    {title:"¿Qué podría ocurrir?",body:"Analicen las posibles consecuencias si una situación como esta se materializa. Piensen en acceso, modificación, divulgación o indisponibilidad de información y servicios."},
+    {title:"¿Qué necesitamos proteger?",body:"Analicen el incidente desde la tríada CIA: ¿quién debería poder acceder?, ¿quién debería poder modificar?, ¿cuándo debería estar disponible la información o el servicio?"}
+  ];
+  const opened=state.opened.m2||[];
+  document.getElementById("app").innerHTML=header("Fase 1 · Misión 2","Reconstruyan el incidente")+
+  `<p>Ya disponen de información suficiente para comenzar a reconstruir lo ocurrido. Abran las cuatro líneas de investigación y discútanlas como equipo.</p>
+  <div class="cards">${prompts.map((p,i)=>`
+    <button class="analysis ${opened.includes(i)?"opened":""}" data-an="${i}">
+      <span class="num">LÍNEA ${String(i+1).padStart(2,"0")}</span><h3>${esc(p.title)}</h3>
+      <span class="small">${opened.includes(i)?"Revisada ✓":"Abrir línea de investigación"}</span>
+    </button>`).join("")}</div>
+  <div id="analysisDetail"></div>
+  <div class="actions"><button id="nextBtn" class="btn" ${allOpened("m2",4)?"":"disabled"}>IR AL CHECKPOINT 1</button></div>
+  </section>`;
+  document.querySelectorAll("[data-an]").forEach(b=>b.addEventListener("click",()=>{
+    const i=Number(b.dataset.an);markOpened("m2",i);
+    document.getElementById("analysisDetail").innerHTML=`<div class="detail"><div class="kicker">Pauta de análisis</div><h3>${esc(prompts[i].title)}</h3><p>${esc(prompts[i].body)}</p></div>`;
+    b.classList.add("opened");b.querySelector(".small").textContent="Revisada ✓";
+    if(allOpened("m2",4)) document.getElementById("nextBtn").disabled=false;
+  }));
+  document.getElementById("nextBtn").addEventListener("click",()=>setStep("cp1"));
+}
+
+function checkpointBase(n,title,duration,body,codePhase){
+  return header(`Checkpoint ${n} · Evidencia en Canvas`,title)+`
+    <div class="lockbox">
+      <div class="kicker">🎥 Evidencia obligatoria</div>
+      <h2 style="margin-top:.4rem">Video · máximo ${duration}</h2>
+      ${body}
+    </div>
+    ${codePhase?`
+    <div class="rule warning">
+      <b>ACCESO A LA SIGUIENTE FASE BLOQUEADO</b><br>
+      1. Graben el video.<br>
+      2. Cárguenlo en el Checkpoint ${n} de Canvas.<br>
+      3. Al completar la entrega, Canvas habilitará una página con el código de acceso.<br>
+      4. Regresen aquí e introdúzcanlo para continuar.
+    </div>
+    <label for="code">Código de acceso</label>
+    <div class="codeRow">
+      <input id="code" type="text" autocomplete="off" placeholder="Ingresar código">
+      <button id="unlock" class="btn pink">DESBLOQUEAR SIGUIENTE FASE</button>
+    </div>
+    <div id="codeMsg" class="feedback"></div>`:""}
+    </section>`;
+}
+function renderCP1(){
+  const body=`
+    <p>Localicen en su entorno <b>un activo tecnológico real</b> relacionado con las actividades universitarias.</p>
+    <p>En el video deben aparecer y participar verbalmente <b>todos los integrantes</b>. Utilizando el activo seleccionado, expliquen:</p>
+    <div class="grid">
+      <div class="role"><b>1 · ACTIVO</b><br>¿Qué seleccionaron y por qué tiene valor?</div>
+      <div class="role"><b>2 · AMENAZA Y VULNERABILIDAD</b><br>¿Qué podría afectarlo y qué condición podría facilitarlo?</div>
+      <div class="role"><b>3 · RIESGO</b><br>¿Qué consecuencia tendría para la organización?</div>
+      <div class="role"><b>4 · TRÍADA CIA</b><br>¿Qué principio consideran especialmente relevante y por qué?</div>
+    </div>
+    <div class="rule warning"><b>No lean definiciones.</b> Expliquen los conceptos utilizando el activo seleccionado como ejemplo.</div>
+    <p class="small">Guía de participación: integrante 1, activo e importancia; integrante 2, amenaza y vulnerabilidad; integrante 3, riesgo y CIA. Pueden distribuirlo de otra forma siempre que todos intervengan verbalmente.</p>`;
+  document.getElementById("app").innerHTML=checkpointBase(1,"Investigación de campo","2 minutos",body,true);
+  wireCode(CODE_PHASE_2,"m3",2);
+}
+
+function wireCode(expected,next,phase){
+  const input=document.getElementById("code"),btn=document.getElementById("unlock"),msg=document.getElementById("codeMsg");
+  function validate(){
+    const value=input.value.trim().toUpperCase();
+    if(value===expected){
+      msg.innerHTML='<span class="ok">✓ Código verificado. Acceso concedido.</span>';
+      btn.disabled=true; input.disabled=true;
+      if(phase===2) state.phase2=true;
+      if(phase===3) state.phase3=true;
+      save(); setTimeout(()=>setStep(next),650);
+    }else{
+      msg.innerHTML='<span class="bad">ACCESO DENEGADO · El código no es válido. Verifiquen la página habilitada en Canvas.</span>';
+    }
+  }
+  btn.addEventListener("click",validate);
+  input.addEventListener("keydown",e=>{if(e.key==="Enter") validate()});
+}
+
+function renderM3(){
+  if(!state.phase2){setStep("cp1");return}
+  const items=[
+    {title:"Inicio de sesión",short:"Registro de autenticación y creación de sesión.",
+     body:`<div class="log">10:14:03  Usuario: estudiante01
+10:14:04  Autenticación: exitosa
+10:14:04  Sesión iniciada</div>
+<p class="small">Distingan entre declarar una identidad, demostrarla y mantener el estado de la sesión.</p>`},
+    {title:"Datos del navegador",short:"Valores asociados con la sesión web simulada.",
+     body:`<div class="log">username   = estudiante01
+uid        = 1042
+IsAdmin    = false
+session_id = 8F3A91C2
+
+HttpOnly = true
+Secure   = true
+SameSite = Lax</div>
+<p class="small">Analicen qué datos describen al usuario, cuáles se relacionan con la sesión y qué atributos protegen una cookie.</p>`},
+    {title:"Actividad posterior",short:"Solicitudes realizadas después del inicio de sesión.",
+     body:`<div class="log">10:16:21  GET /perfil/1042  → 200 OK
+10:18:47  GET /perfil/1057  → 200 OK
+10:20:02  GET /perfil/1063  → 200 OK</div>
+<p class="small">Comparen los identificadores solicitados con el uid de la cuenta autenticada.</p>`},
+    {title:"Reporte del usuario",short:"El propietario de la cuenta describe su actividad.",
+     body:`<p>“Yo inicié sesión normalmente y únicamente consulté mi perfil. No conozco a los usuarios 1057 ni 1063.”</p>
+<p class="small">La existencia de una autenticación válida no demuestra que todas las acciones posteriores estén autorizadas.</p>`}
+  ];
+  document.getElementById("app").innerHTML=header("Fase 2 · Misión 3","La sesión bajo sospecha")+
+  phaseLine(2)+`
+  <div class="rule"><b>NUEVOS REGISTROS RECUPERADOS</b><br>La investigación continúa. Analicen qué ocurrió durante y después de una sesión aparentemente válida.</div>
+  ${evidenceCards("m3",items)}
+  <div class="actions"><button id="nextBtn" class="btn" ${allOpened("m3",items.length)?"":"disabled"}>CONTINUAR</button></div>
+  </section>`;
+  wireEvidence("m3",items,"Continuar","m4");
+}
+
+function renderM4(){
+  const items=[
+    {title:"Solicitud original",short:"Acceso al recurso asociado con la cuenta autenticada.",
+     body:`<div class="log">Usuario autenticado: estudiante01
+uid de la cuenta: 1042
+
+GET /perfil/1042
+→ 200 OK</div>`},
+    {title:"Solicitud posterior",short:"La sesión continúa, pero cambia el recurso solicitado.",
+     body:`<div class="log">Usuario autenticado: estudiante01
+uid de la cuenta: 1042
+
+GET /perfil/1057
+→ 200 OK</div>`},
+    {title:"Registro del servidor",short:"El servidor registra cómo tomó la decisión de acceso.",
+     body:`<div class="log">Sesión válida: SÍ
+Usuario autenticado: estudiante01
+Rol: estudiante
+Recurso solicitado: perfil/1057
+Acceso concedido: SÍ</div>`},
+    {title:"Informe técnico preliminar",short:"Hallazgo del equipo que revisó el control de acceso.",
+     body:`<p>El servidor comprobaba que existiera una sesión válida, pero no verificaba adecuadamente que el usuario autenticado estuviera autorizado para acceder al recurso solicitado.</p>`}
+  ];
+  document.getElementById("app").innerHTML=header("Fase 2 · Misión 4","La puerta estaba abierta")+
+  `<p>Comparen las solicitudes y el registro del servidor. Al revisar las evidencias, discutan:</p>
+  <div class="rule">¿Falló la <b>identificación</b>? ¿Falló la <b>autenticación</b>? ¿O el problema ocurrió después?<br><br>
+  Observen además si el usuario obtuvo funciones de un nivel superior o accedió a información perteneciente a <b>otros usuarios con privilegios similares</b>.</div>
+  ${evidenceCards("m4",items)}
+  <div class="actions"><button id="nextBtn" class="btn" ${allOpened("m4",items.length)?"":"disabled"}>IR AL CHECKPOINT 2</button></div>
+  </section>`;
+  wireEvidence("m4",items,"Checkpoint 2","cp2");
+}
+
+function renderCP2(){
+  const body=`
+    <p>Presenten un <b>informe técnico del incidente</b> utilizando las evidencias encontradas durante las Misiones 3 y 4.</p>
+    <div class="grid">
+      <div class="role"><b>1 · ACCESO INICIAL</b><br>¿Qué ocurrió durante la identificación, autenticación y creación de la sesión?</div>
+      <div class="role"><b>2 · MANIPULACIÓN</b><br>¿Qué comportamiento anómalo encontraron posteriormente?</div>
+      <div class="role"><b>3 · CONTROL DE ACCESO</b><br>¿Dónde estuvo realmente el problema y qué tipo de acceso o escalamiento identificaron?</div>
+      <div class="role"><b>4 · PROTECCIÓN</b><br>¿Qué debería hacer el sistema para evitar una situación similar?</div>
+    </div>
+    <div class="rule warning"><b>No se limiten a definir conceptos.</b> Utilicen las evidencias del incidente para justificar su explicación.</div>
+    <p class="small">Todos los integrantes deben aparecer y participar verbalmente. Pueden distribuir los cuatro puntos de la forma que consideren más clara.</p>`;
+  document.getElementById("app").innerHTML=checkpointBase(2,"Informe del incidente","2 minutos 30 segundos",body,true);
+  wireCode(CODE_PHASE_3,"m5",3);
+}
+
+function renderM5(){
+  if(!state.phase3){setStep("cp2");return}
+  const items=[
+    {title:"Cuenta comprometida",short:"Origen identificado durante la investigación.",body:`<p>Un usuario ingresó sus credenciales después de recibir un mensaje fraudulento.</p>`},
+    {title:"Sesión válida",short:"La cuenta consiguió autenticarse correctamente.",body:`<div class="log">Usuario: estudiante01
+Autenticación: exitosa
+Sesión: activa</div>`},
+    {title:"Acceso indebido",short:"La sesión consultó recursos asociados con otros usuarios.",body:`<div class="log">GET /perfil/1042 → 200 OK
+GET /perfil/1057 → 200 OK
+GET /perfil/1063 → 200 OK</div>`},
+    {title:"Control de acceso",short:"Hallazgo técnico sobre la autorización.",body:`<p>El servidor verificaba la existencia de una sesión válida, pero no comprobaba correctamente si el usuario estaba autorizado para acceder al recurso solicitado.</p>`},
+    {title:"Impacto",short:"Consecuencias confirmadas del incidente.",body:`<p>Se confirmó acceso a información perteneciente a otros usuarios y existen registros de modificaciones no autorizadas.</p>`},
+    {title:"Monitoreo",short:"Información disponible para reconstruir el incidente.",body:`<p>Los registros permitieron reconstruir parcialmente las acciones realizadas durante el incidente.</p>`}
+  ];
+  document.getElementById("app").innerHTML=header("Fase 3 · Misión 5","Sala de respuesta")+
+  phaseLine(3)+`
+  <div class="rule"><b>EL INCIDENTE ESTÁ CONFIRMADO</b><br>Ya no basta con saber qué ocurrió. Su equipo debe decidir cómo actuar frente al incidente y cómo reducir la posibilidad de que vuelva a ocurrir.</div>
+  <p>Revisen el expediente consolidado.</p>
+  ${evidenceCards("m5",items)}
+  <div class="rule">
+    Cuando terminen, discutan: <b>¿qué hacemos inmediatamente?, ¿qué debemos proteger?, ¿cómo detectaríamos situaciones similares?, ¿cómo recuperaríamos la operación?, ¿qué debería cambiar después del incidente?</b>
+  </div>
+  <div class="actions"><button id="nextBtn" class="btn" ${allOpened("m5",items.length)?"":"disabled"}>ABRIR PROTOCOLO NIST</button></div>
+  </section>`;
+  wireEvidence("m5",items,"NIST","m6");
+}
+
+function renderM6(){
+  const funcs=[
+    ["GOVERN","¿Qué políticas, responsabilidades o decisiones organizacionales deberían establecerse?"],
+    ["IDENTIFY","¿Qué activos, dependencias, vulnerabilidades y riesgos deben conocerse?"],
+    ["PROTECT","¿Qué salvaguardas podrían reducir la posibilidad o el impacto de un nuevo incidente?"],
+    ["DETECT","¿Qué información permitiría descubrir oportunamente un comportamiento anómalo?"],
+    ["RESPOND","¿Qué acciones deberían ejecutarse una vez confirmado el incidente?"],
+    ["RECOVER","¿Qué debe hacerse para restaurar los servicios o información afectados y regresar a una operación normal?"]
+  ];
+  const opened=state.opened.m6||[];
+  document.getElementById("app").innerHTML=header("Fase 3 · Misión 6","Protocolo NIST")+
+  `<p>Exploren las seis funciones del <b>NIST Cybersecurity Framework 2.0</b>. No deben memorizar una definición: utilicen cada función como una lente para decidir qué haría el equipo de seguridad.</p>
+  <div class="grid3">${funcs.map((f,i)=>`
+    <button class="nist ${opened.includes(i)?"opened":""}" data-nist="${i}">
+      <strong>${f[0]}</strong><span class="small">${opened.includes(i)?"Analizada ✓":"Abrir función"}</span>
+    </button>`).join("")}</div>
+  <div id="nistDetail"></div>
+  <div class="rule warning"><b>DECISIÓN DEL EQUIPO</b><br>
+  No necesariamente todas las funciones tendrán el mismo protagonismo en cada momento. Discutan cuáles utilizarían para <b>actuar inmediatamente</b>, <b>reducir el riesgo futuro</b> y <b>recuperar la operación</b>.</div>
+  <div class="actions"><button id="nextBtn" class="btn" ${allOpened("m6",6)?"":"disabled"}>IR AL CHECKPOINT FINAL</button></div>
+  </section>`;
+  document.querySelectorAll("[data-nist]").forEach(b=>b.addEventListener("click",()=>{
+    const i=Number(b.dataset.nist);markOpened("m6",i);
+    document.getElementById("nistDetail").innerHTML=`<div class="detail"><div class="kicker">${funcs[i][0]}</div><p>${esc(funcs[i][1])}</p></div>`;
+    b.classList.add("opened");b.querySelector(".small").textContent="Analizada ✓";
+    if(allOpened("m6",6)) document.getElementById("nextBtn").disabled=false;
+  }));
+  document.getElementById("nextBtn").addEventListener("click",()=>setStep("cp3"));
+}
+
+function renderCP3(){
+  const body=`
+    <p>Su investigación ha terminado. Presenten el <b>informe final del equipo de seguridad</b>.</p>
+    <div class="grid">
+      <div class="role"><b>1 · ¿QUÉ OCURRIÓ?</b><br>Reconstruyan brevemente el incidente.</div>
+      <div class="role"><b>2 · EVIDENCIAS</b><br>Utilicen al menos dos evidencias encontradas durante Cyber Hunt.</div>
+      <div class="role"><b>3 · ¿QUÉ HARÍAN AHORA?</b><br>Propongan acciones inmediatas frente al incidente.</div>
+      <div class="role"><b>4 · NIST CSF 2.0</b><br>Relacionen sus decisiones con las funciones que consideren pertinentes y justifiquen por qué.</div>
+      <div class="role"><b>5 · PREVENCIÓN</b><br>Propongan al menos dos controles y expliquen qué riesgo buscan reducir.</div>
+    </div>
+    <div class="rule warning"><b>No lean definiciones ni se limiten a enumerar las seis funciones.</b> Utilicen el incidente investigado para justificar sus decisiones.</div>
+    <p class="small">Todos los integrantes deben aparecer y participar verbalmente. Con tres integrantes pueden distribuir: reconstrucción/evidencias; acciones/NIST; controles/riesgo. Con dos integrantes, distribuyan los cinco puntos entre ambos.</p>`;
+  document.getElementById("app").innerHTML=checkpointBase(3,"Informe final","3 minutos",body,false).replace("</section>",`
+    <div class="finalChecks">
+      <label><input id="c1" type="checkbox"> <span>Confirmamos que todos los integrantes aparecen y participaron verbalmente en el video.</span></label>
+      <label><input id="c2" type="checkbox"> <span>Confirmamos que el video del Checkpoint 3 fue cargado en Canvas.</span></label>
+    </div>
+    <div class="actions"><button id="finish" class="btn" disabled>FINALIZAR CYBER HUNT</button></div>
+    </section>`);
+  const c1=document.getElementById("c1"),c2=document.getElementById("c2"),finish=document.getElementById("finish");
+  const sync=()=>finish.disabled=!(c1.checked&&c2.checked);
+  c1.addEventListener("change",sync);c2.addEventListener("change",sync);
+  finish.addEventListener("click",()=>{state.completed=true;state.step="final";save();render();window.scrollTo(0,0)});
+}
+
+function renderFinal(){
+  document.getElementById("app").innerHTML=`
+  <section class="panel hero">
+    <div class="kicker">Operación completada</div>
+    <h1 style="font-size:clamp(2.1rem,7vw,4rem)">CYBER HUNT</h1>
+    <p class="lead">El equipo <b>${esc(state.team)}</b> ha completado las tres fases de la investigación.</p>
+    <div class="rule" style="text-align:left">
+      <span class="done">✓</span> Fase 1 — Investigación inicial<br>
+      <span class="done">✓</span> Checkpoint 1 — Evidencia en Canvas<br>
+      <span class="done">✓</span> Fase 2 — Acceso comprometido<br>
+      <span class="done">✓</span> Checkpoint 2 — Evidencia en Canvas<br>
+      <span class="done">✓</span> Fase 3 — Respuesta al incidente<br>
+      <span class="done">✓</span> Checkpoint 3 — Evidencia final en Canvas
+    </div>
+    <div class="grid">
+      ${state.members.map((m,i)=>`<div class="role"><b>Integrante ${i+1}</b><br>${esc(m)}</div>`).join("")}
+    </div>
+    <div class="lockbox">
+      <h2>Actividad finalizada</h2>
+      <p>La calificación se realizará a partir de las <b>tres evidencias en video entregadas en Canvas</b>.</p>
+      <p style="font-size:1.35rem"><b>Valor total: 6 puntos</b></p>
+    </div>
+    <p class="small">El progreso final queda guardado en este navegador. No es necesario repetir la actividad.</p>
+  </section>`;
+}
+
+function render(){
+  status();
+  switch(state.step){
+    case "start": renderStart(); break;
+    case "m1": renderM1(); break;
+    case "m2": renderM2(); break;
+    case "cp1": renderCP1(); break;
+    case "m3": renderM3(); break;
+    case "m4": renderM4(); break;
+    case "cp2": renderCP2(); break;
+    case "m5": renderM5(); break;
+    case "m6": renderM6(); break;
+    case "cp3": renderCP3(); break;
+    case "final": renderFinal(); break;
+    default: state=initialState(); save(); renderStart();
+  }
+}
+
+render();
+})();
+</script>
+</body>
+</html>
